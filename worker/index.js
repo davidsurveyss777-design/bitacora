@@ -47,7 +47,7 @@ async function handleChat(request, env) {
         Authorization: `Bearer ${env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model: "qwen/qwen3.6-27b",
         max_tokens: 1000,
         messages: [
           { role: "system", content: buildSystemPrompt(tasks) },
@@ -62,7 +62,8 @@ async function handleChat(request, env) {
     }
 
     const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content?.trim() || "";
+    const rawReply = data.choices?.[0]?.message?.content || "";
+    const reply = rawReply.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 
     return new Response(JSON.stringify({ reply }), {
       headers: { "Content-Type": "application/json" },
